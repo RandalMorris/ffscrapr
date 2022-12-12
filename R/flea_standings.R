@@ -74,7 +74,7 @@ ff_standings.flea_conn <- function(conn, include_allplay = TRUE, include_potenti
     dplyr::filter(!is.na(.data$result)) %>%
     dplyr::distinct(.data$week, .data$game_id) %>%
     dplyr::mutate(potentialpoints = purrr::map2(.data$week, .data$game_id, .flea_potentialpointsweek, conn)) %>%
-    tidyr::unnest(.data$potentialpoints) %>%
+    tidyr::unnest("potentialpoints") %>%
     dplyr::group_by(.data$franchise_id) %>%
     dplyr::summarise(potential_points = sum(.data$potential_points)) %>%
     dplyr::ungroup()
