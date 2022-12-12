@@ -1,4 +1,5 @@
 library(checkmate)
+library(httptest)
 
 ## Testing scenarios
 #
@@ -23,24 +24,20 @@ github_online <- function(){
   !identical(curl::nslookup("github.com", error = FALSE),"")
 }
 
-mock_rebuild <- function(){
+rebuild_mocking <- function(){
   identical(Sys.getenv("MOCK_REBUILD"), "true")
 }
 
 if (needs_mocking() & github_online()) {
-  cache_dir <- rappdirs::user_cache_dir("ffscrapr")
-  if (!file.exists(cache_dir)) {
-    dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
-  }
 
-  cache_path <- file.path(cache_dir, "ffscrapr-tests-1.4.8")
+  cache_path <- here::here("cache", "ffscrapr-tests-1.4.8")
 
   # Cache for 24 hours
   if (!file.exists(cache_path) || difftime(Sys.time(), file.mtime(cache_path), units = "days") > 1) {
 
     path <- tempfile()
     download.file("https://github.com/ffverse/ffscrapr-tests/archive/1.4.7.zip", path)
-    unzip(path, exdir = cache_dir)
+    unzip(path, exdir = "cache")
     unlink(path)
   }
 
@@ -48,20 +45,20 @@ if (needs_mocking() & github_online()) {
 }
 
 local_mock_api <- function(envir = parent.frame()) {
-  if (!needs_mocking()) return()
-
-  cache_path <- file.path(rappdirs::user_cache_dir("ffscrapr"), "ffscrapr-tests-1.4.7")
-  if(!file.exists(cache_path)) {
-    testthat::skip("Could not find cache files!")
-    return()
-    }
+  cache_path <- here::here("cache", "ffscrapr-tests-1.4.8")
 
   if(rebuild_mocking()) {
     httptest::start_capturing(path = cache_path, simplify = FALSE)
-    withr::defer(httptest::stop_capturing())
+    withr::defer(httptest::stop_capturing(), envir = envir)
   }
 
+  if (!needs_mocking()) return()
+
   if(!rebuild_mocking()){
+    if(!file.exists(cache_path)) {
+      testthat::skip("Could not find cache files!")
+      return()
+    }
     httptest::use_mock_api()
     withr::defer(httptest::stop_mocking(), envir = envir)
   }

@@ -42,3 +42,7 @@ inst/doc
 docs/
 /doc/
 /Meta/
+
+# Test cache
+/test_cache/
+test_cache/
