@@ -4,6 +4,8 @@
 #'
 #' @param conn a conn object created by `ff_connect()`
 #' @param season season a numeric vector of seasons (earliest available year is 1999)
+#' @param scoring a dataframe of scoring settings as created by `ff_scoring()`,
+#' default is to run `ff_scoring()` on the provided connection.
 #' @param ... other arguments
 #'
 #' @examples
@@ -17,12 +19,15 @@
 #' @describeIn ff_scoringhistory MFL: returns scoring history in a flat table, one row per player per week.
 #'
 #' @export
-ff_scoringhistory.mfl_conn <- function(conn, season = 1999:nflreadr::most_recent_season(), ...) {
+ff_scoringhistory.mfl_conn <- function(conn,
+                                       season = 1999:nflreadr::most_recent_season(),
+                                       scoring = ff_scoring(conn),
+                                       ...) {
+
   checkmate::assert_numeric(season, lower = 1999, upper = as.integer(format(Sys.Date(), "%Y")))
 
   # Pull in scoring rules for that league
-  league_rules <-
-    ff_scoring(conn) %>%
+  league_rules <- scoring %>%
     tidyr::separate(
       col = "range",
       into = c("lower_range", "upper_range"),

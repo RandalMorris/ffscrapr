@@ -4,6 +4,8 @@
 #'
 #' @param conn a conn object created by `ff_connect()`
 #' @param season season a numeric vector of seasons (earliest available year is 1999)
+#' @param scoring a dataframe of scoring settings as created by `ff_scoring()`,
+#' default is to run `ff_scoring()` on the provided connection.
 #' @param ... other arguments
 #'
 #' @examples
@@ -17,11 +19,13 @@
 #' @describeIn ff_scoringhistory ESPN: returns scoring history in a flat table, one row per player per week.
 #'
 #' @export
-ff_scoringhistory.espn_conn <- function(conn, season = 1999:nflreadr::most_recent_season(), ...) {
+ff_scoringhistory.espn_conn <- function(conn,
+                                        season = 1999:nflreadr::most_recent_season(),
+                                        scoring = ff_scoring(conn),
+                                        ...) {
   checkmate::assert_numeric(season, lower = 1999, upper = as.integer(format(Sys.Date(), "%Y")))
 
-  league_rules <-
-    ff_scoring(conn) %>%
+  league_rules <- scoring %>%
     dplyr::left_join(
       ffscrapr::nflfastr_stat_mapping %>% dplyr::filter(.data$platform == "espn"),
       by = c("stat_name" = "ff_event")

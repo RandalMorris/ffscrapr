@@ -17,12 +17,14 @@
 #' @describeIn ff_scoringhistory Sleeper: returns scoring history in a flat table, one row per player per week.
 #'
 #' @export
-ff_scoringhistory.sleeper_conn <- function(conn, season = 1999:nflreadr::most_recent_season(), ...) {
+ff_scoringhistory.sleeper_conn <- function(conn,
+                                           season = 1999:nflreadr::most_recent_season(),
+                                           scoring = ff_scoring(conn),
+                                           ...) {
   checkmate::assert_numeric(season, lower = 1999, upper = as.integer(format(Sys.Date(), "%Y")))
 
   # Pull in scoring rules for that league
-  league_rules <-
-    ff_scoring(conn) %>%
+  league_rules <- scoring %>%
     dplyr::left_join(
       ffscrapr::nflfastr_stat_mapping %>% dplyr::filter(.data$platform == "sleeper"),
       by = c("event" = "ff_event")
