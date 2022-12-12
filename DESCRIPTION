@@ -56,10 +56,11 @@ Suggests:
     knitr (>= 1.0),
     rmarkdown (>= 2.6),
     testthat (>= 2.1.0),
-    withr (>= 2.4.0)
+    withr (>= 2.4.0),
+    here
 LazyData: true
 VignetteBuilder:
     knitr
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
